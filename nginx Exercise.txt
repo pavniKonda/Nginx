@@ -1,0 +1,19 @@
+server {
+    listen 80;
+    server_name domainname.com;
+    access_log /var/log/nginx/access.log custom_format;
+    location / {
+        proxy_pass http://upstream;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    }
+
+    location ~* \.(css|jpg|jpeg|js|json|png|mp4|pdf)$ {
+        return 404;
+
+        # Additional log format for this location block
+        log_format custom_format '$time_local | $nginx_version | $remote_addr | $request_id | $status | $body_bytes_sent | $http_user_agent | $proxy_protocol_addr | $server_name | $upstream_addr | $request_time | $upstream_connect_time | $upstream_header_time | $upstream_response_time | $request_uri | $upstream_status | $ssl_session_reused | $http_x_forwarded_for';
+    }
+}
